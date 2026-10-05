@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>数据结构可视化 · DS.VIS</title>
+  <meta name="description" content="排序算法与二叉树遍历的动画演示，把抽象概念变成看得见的动画。" />
+  <link rel="stylesheet" href="css/style.css" />
+  <script>
+    // 提前设置主题，避免页面刷新时闪烁
+    document.documentElement.dataset.theme =
+      localStorage.getItem('theme') ||
+      (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  </script>
+</head>
+<body>
+  <!-- 导航栏 -->
+  <nav class="navbar">
+    <div class="container nav-inner">
+      <a href="#" class="logo">DS<span>.VIS</span></a>
+      <div class="tabs" id="tabs">
+        <button class="tab active" data-tab="sort">排序算法</button>
+        <button class="tab" data-tab="tree">二叉树</button>
+        <button class="tab" data-tab="stack">栈</button>
+        <button class="tab" data-tab="queue">队列</button>
+        <button class="tab" data-tab="huffman">哈夫曼树</button>
+      </div>
+      <button class="icon-btn" id="themeToggle" aria-label="切换深浅主题"></button>
+    </div>
+  </nav>
+
+  <main class="container page">
+    <!-- ============ 排序面板 ============ -->
+    <section class="panel active" id="panel-sort">
+      <div class="card toolbar">
+        <div class="toolbar-row">
+          <label class="field">
+            <span class="field-label">算法</span>
+            <select id="algoSelect">
+              <option value="bubble">冒泡排序</option>
+              <option value="selection">选择排序</option>
+              <option value="insertion">插入排序</option>
+              <option value="quick">快速排序</option>
+              <option value="merge">归并排序</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="field-label">数据规模 <span class="val" id="sizeVal">30</span></span>
+            <input type="range" id="sizeRange" min="10" max="60" value="30" />
+          </label>
+          <label class="field">
+            <span class="field-label">速度 <span class="val" id="sortSpeedVal">24 步/秒</span></span>
+            <input type="range" id="sortSpeed" min="1" max="100" value="24" />
+          </label>
+        </div>
+        <div class="toolbar-row">
+          <button class="btn btn-primary" id="sortStart">开始</button>
+          <button class="btn btn-outline" id="sortPause">暂停</button>
+          <button class="btn btn-outline" id="sortStep">单步</button>
+          <button class="btn btn-outline" id="sortReset">重置</button>
+          <button class="btn btn-outline" id="sortNewData">生成新数据</button>
+        </div>
+      </div>
+
+      <div class="card canvas-card"><canvas id="sortCanvas" height="420"></canvas></div>
+
+      <div class="statusbar">
+        <span id="sortNote"></span>
+        <span id="sortStats" class="muted"></span>
+      </div>
+
+      <div class="legend">
+        <span class="legend-item"><i style="background:#6366f1"></i>未排序</span>
+        <span class="legend-item"><i style="background:#f59e0b"></i>比较</span>
+        <span class="legend-item"><i style="background:#ef4444"></i>交换</span>
+        <span class="legend-item"><i style="background:#06b6d4"></i>写回</span>
+        <span class="legend-item"><i style="background:#a855f7"></i>基准</span>
+        <span class="legend-item"><i style="background:#22c55e"></i>已就位</span>
+      </div>
+    </section>
+
+    <!-- ============ 二叉树面板 ============ -->
+    <section class="panel" id="panel-tree">
+      <div class="card toolbar">
+        <div class="toolbar-row">
+          <label class="field grow">
+            <span class="field-label">节点序列（逗号分隔，重复值会被忽略）</span>
+            <input type="text" id="treeInput" value="50,30,70,20,40,60,80" placeholder="如：50,30,70,20,40,60,80" />
+          </label>
+          <button class="btn btn-primary" id="treeBuild">构建</button>
+          <button class="btn btn-outline" id="treeRandom">随机</button>
+        </div>
+        <div class="toolbar-row">
+          <button class="btn btn-outline" data-trav="pre">前序遍历</button>
+          <button class="btn btn-outline" data-trav="in">中序遍历</button>
+          <button class="btn btn-outline" data-trav="post">后序遍历</button>
+          <button class="btn btn-outline" data-trav="level">层序遍历</button>
+          <label class="field">
+            <span class="field-label">速度 <span class="val" id="treeSpeedVal">2 步/秒</span></span>
+            <input type="range" id="treeSpeed" min="1" max="20" value="2" />
+          </label>
+          <button class="btn btn-outline" id="treePause">暂停</button>
+          <button class="btn btn-outline" id="treeStep">单步</button>
+          <button class="btn btn-outline" id="treeReset">清除进度</button>
+        </div>
+      </div>
+
+      <div class="card canvas-card"><canvas id="treeCanvas" height="420"></canvas></div>
+
+      <div class="statusbar">
+        <span id="treeNote"></span>
+        <span id="treeStats" class="muted"></span>
+      </div>
+
+      <div class="visit-strip" id="visitStrip"></div>
+    </section>
+    <!-- ============ 栈面板 ============ -->
+    <section class="panel" id="panel-stack">
+      <div class="card toolbar">
+        <div class="toolbar-row">
+          <label class="field grow">
+            <span class="field-label">入栈的值（留空则随机 1~99）</span>
+            <input type="text" id="stackInput" placeholder="如：42" />
+          </label>
+          <button class="btn btn-primary" id="stackPush">入栈 push</button>
+          <button class="btn btn-outline" id="stackPop">出栈 pop</button>
+          <button class="btn btn-outline" id="stackClear">清空</button>
+          <label class="field">
+            <span class="field-label">速度 <span class="val" id="sqSpeedVal">3 步/秒</span></span>
+            <input type="range" id="sqSpeed" min="1" max="20" value="3" />
+          </label>
+        </div>
+      </div>
+
+      <div class="card canvas-card"><canvas id="stackCanvas" height="420"></canvas></div>
+
+      <div class="statusbar">
+        <span id="stackNote"></span>
+        <span id="stackStats" class="muted"></span>
+      </div>
+
+      <div class="legend">
+        <span class="legend-item"><i style="background:#6366f1"></i>元素</span>
+        <span class="legend-item"><i style="background:#f59e0b"></i>正在入栈</span>
+        <span class="legend-item"><i style="background:#ef4444"></i>正在出栈</span>
+      </div>
+    </section>
+
+    <!-- ============ 队列面板 ============ -->
+    <section class="panel" id="panel-queue">
+      <div class="card toolbar">
+        <div class="toolbar-row">
+          <label class="field grow">
+            <span class="field-label">入队的值（留空则随机 1~99）</span>
+            <input type="text" id="queueInput" placeholder="如：42" />
+          </label>
+          <button class="btn btn-primary" id="queueEnqueue">入队 enqueue</button>
+          <button class="btn btn-outline" id="queueDequeue">出队 dequeue</button>
+          <button class="btn btn-outline" id="queueClear">清空</button>
+          <label class="field">
+            <span class="field-label">速度 <span class="val" id="qSpeedVal">3 步/秒</span></span>
+            <input type="range" id="qSpeed" min="1" max="20" value="3" />
+          </label>
+        </div>
+      </div>
+
+      <div class="card canvas-card"><canvas id="queueCanvas" height="420"></canvas></div>
+
+      <div class="statusbar">
+        <span id="queueNote"></span>
+        <span id="queueStats" class="muted"></span>
+      </div>
+
+      <div class="legend">
+        <span class="legend-item"><i style="background:#6366f1"></i>元素</span>
+        <span class="legend-item"><i style="background:#f59e0b"></i>正在入队</span>
+        <span class="legend-item"><i style="background:#ef4444"></i>正在出队</span>
+        <span class="legend-item"><i style="background:#06b6d4"></i>front 出队端</span>
+        <span class="legend-item"><i style="background:#a855f7"></i>rear 入队端</span>
+      </div>
+    </section>
+    <!-- ============ 哈夫曼树面板 ============ -->
+    <section class="panel" id="panel-huffman">
+      <div class="card toolbar">
+        <div class="toolbar-row">
+          <label class="field grow">
+            <span class="field-label">字符：权重（逗号分隔，最多 9 个；只写权重也可以）</span>
+            <input type="text" id="huffmanInput" value="A:5,B:2,C:1,D:4" placeholder="如：A:5,B:2,C:1,D:4" />
+          </label>
+          <button class="btn btn-primary" id="huffmanBuild">构建</button>
+          <button class="btn btn-outline" id="huffmanRandom">随机</button>
+          <label class="field">
+            <span class="field-label">速度 <span class="val" id="hSpeedVal">2 步/秒</span></span>
+            <input type="range" id="hSpeed" min="1" max="20" value="2" />
+          </label>
+        </div>
+      </div>
+
+      <div class="card canvas-card"><canvas id="huffmanCanvas" height="420"></canvas></div>
+
+      <div class="statusbar">
+        <span id="huffmanNote"></span>
+        <span id="huffmanStats" class="muted"></span>
+      </div>
+
+      <div class="visit-strip" id="huffmanCodes"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <p>© 2026 数据结构可视化 · <a href="../my-blog/index.html">返回博客</a></p>
+    </div>
+  </footer>
+
+  <script src="js/sorts.js" defer></script>
+  <script src="js/tree.js" defer></script>
+  <script src="js/stackqueue.js" defer></script>
+  <script src="js/huffman.js" defer></script>
+  <script src="js/render.js" defer></script>
+  <script src="js/main.js" defer></script>
+</body>
+</html>
